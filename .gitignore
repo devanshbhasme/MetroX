@@ -5,6 +5,8 @@ node_modules/
 # Production builds
 dist/
 */dist/
+.vite/
+*/.vite/
 
 # C++ Build artifacts
 bin/
