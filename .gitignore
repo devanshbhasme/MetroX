@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Production builds
+dist/
+*/dist/
+
+# C++ Build artifacts
+bin/
+obj/
+*.o
+*.out
+*.dSYM
+MetroX\ Project/metrox/bin/
+MetroX\ Project/metrox/obj/
+
+# Archives & backups
+*.zip
+*.tar.gz
+
+# Environment & secrets
+.env
+.env.local
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
