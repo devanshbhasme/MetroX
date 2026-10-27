@@ -1,4 +1,4 @@
-101|Nagpur Metro Orange Line - 01|150|1|IN_SERVICE
+101|Nagpur Metro Orange Line - 01|150|2|IN_SERVICE
 102|Nagpur Metro Aqua Line - 02|200|0|IN_SERVICE
 103|Nagpur Metro Orange Line - 03|150|1|IN_SERVICE
 104|Nagpur Metro Aqua Line - 04|200|0|IN_SERVICE
