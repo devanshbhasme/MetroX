@@ -3,26 +3,53 @@ import { UserProfile, Station, Ticket } from '../types/metro';
 import { api } from '../services/api';
 import { User, CreditCard, Heart, Bell, Leaf, CheckCircle2, Save, Smartphone } from 'lucide-react';
 
+import { AuthUser } from '../types/metro';
+
 interface ProfilePageProps {
   stations: Station[];
   tickets: Ticket[];
+  currentUser?: AuthUser | null;
+  onBalanceUpdated?: (newBalance: number) => void;
 }
 
-export const ProfilePage: React.FC<ProfilePageProps> = ({ stations, tickets }) => {
+export const ProfilePage: React.FC<ProfilePageProps> = ({ stations, tickets, currentUser, onBalanceUpdated }) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [rechargeAmt, setRechargeAmt] = useState(200);
   const [rechargeSuccess, setRechargeSuccess] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
-    api.getProfile().then(setProfile).catch(() => null);
-  }, []);
+    api.getProfile().then((data) => {
+      if (currentUser) {
+        setProfile({
+          ...data,
+          name: currentUser.name || data.name,
+          email: currentUser.email || data.email,
+          phone: currentUser.phone || data.phone,
+          cardBalance: currentUser.balance !== undefined ? currentUser.balance : (currentUser.smartCardBalance !== undefined ? currentUser.smartCardBalance : data.cardBalance)
+        });
+      } else {
+        setProfile(data);
+      }
+    }).catch(() => null);
+  }, [currentUser]);
 
   const handleRecharge = async () => {
     if (!profile) return;
     const newBal = profile.cardBalance + rechargeAmt;
     const updated = { ...profile, cardBalance: parseFloat(newBal.toFixed(2)) };
     setProfile(updated);
+    
+    if (currentUser) {
+      try {
+        await api.rechargeSmartCard(currentUser.id, rechargeAmt);
+      } catch (err) {
+        console.error('Recharge error:', err);
+      }
+    }
+    if (onBalanceUpdated) {
+      onBalanceUpdated(newBal);
+    }
     await api.updateProfile(updated);
     setRechargeSuccess(true);
     setTimeout(() => setRechargeSuccess(false), 3000);

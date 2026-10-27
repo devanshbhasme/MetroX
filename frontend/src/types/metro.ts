@@ -190,3 +190,44 @@ export interface FleetAvailability {
   trains: Train[];
 }
 
+export interface AuthUser {
+  id: number | string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: 'passenger' | 'admin';
+  category?: 'Regular' | 'Student' | 'Senior';
+  collegeName?: string;
+  studentId?: string;
+  age?: number;
+  seniorId?: string;
+  smartCardBalance?: number;
+  balance?: number;
+  department?: string;
+  token?: string;
+}
+
+export interface CustomerSignUpPayload {
+  name: string;
+  email: string;
+  phone?: string;
+  password: string;
+  category?: 'Regular' | 'Student' | 'Senior';
+  collegeName?: string;
+  studentId?: string;
+  age?: number;
+  seniorId?: string;
+}
+
+export interface CustomerSignInPayload {
+  email: string;
+  password: string;
+}
+
+export interface AdminSignInPayload {
+  email: string;
+  password: string;
+  securityKey?: string;
+}
+
+

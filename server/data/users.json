@@ -1,0 +1,51 @@
+{
+  "admins": [
+    {
+      "id": "ADM-001",
+      "name": "Transit Authority Officer",
+      "email": "admin@metrox.gov",
+      "passwordHash": "196df959ca1d6e93f896ed22f00b9632e6440fed0a1c441c134b7abe49c29e67",
+      "role": "admin",
+      "department": "Central Traffic Command"
+    }
+  ],
+  "customers": [
+    {
+      "id": 1,
+      "name": "Alex Morgan",
+      "email": "alex.morgan@email.com",
+      "phone": "+91 9823011223",
+      "passwordHash": "f240776b853b00b95a17a253eb01e16be2ce48d13bd58a15547c4c7813102e09",
+      "role": "passenger",
+      "category": "Regular",
+      "smartCardBalance": 255,
+      "createdAt": "2026-10-20T10:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "David Chen",
+      "email": "david.chen@univ.edu",
+      "phone": "+91 9845122334",
+      "passwordHash": "f240776b853b00b95a17a253eb01e16be2ce48d13bd58a15547c4c7813102e09",
+      "role": "passenger",
+      "category": "Student",
+      "collegeName": "National Institute of Tech",
+      "studentId": "STU-8821",
+      "smartCardBalance": 450,
+      "createdAt": "2026-10-20T10:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "name": "Robert Wilson",
+      "email": "r.wilson@seniorcare.org",
+      "phone": "+91 9765432109",
+      "passwordHash": "f240776b853b00b95a17a253eb01e16be2ce48d13bd58a15547c4c7813102e09",
+      "role": "passenger",
+      "category": "Senior",
+      "age": 68,
+      "seniorId": "SR-55201",
+      "smartCardBalance": 600,
+      "createdAt": "2026-10-20T10:00:00.000Z"
+    }
+  ]
+}

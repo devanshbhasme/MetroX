@@ -1,18 +1,32 @@
 import React, { useState } from 'react';
-import { Ticket } from '../types/metro';
+import { Ticket, AuthUser } from '../types/metro';
 import { api } from '../services/api';
 import { AlertTriangle, CheckCircle2, Ticket as TicketIcon, RotateCcw, Search, ShieldCheck } from 'lucide-react';
 
 interface CancelTicketPageProps {
   tickets: Ticket[];
   onRefresh: () => void;
+  currentUser?: AuthUser | null;
+  onBalanceUpdated?: (newBalance: number) => void;
 }
 
-export const CancelTicketPage: React.FC<CancelTicketPageProps> = ({ tickets, onRefresh }) => {
+export const CancelTicketPage: React.FC<CancelTicketPageProps> = ({ 
+  tickets, 
+  onRefresh,
+  currentUser,
+  onBalanceUpdated,
+}) => {
   const [selectedTicketId, setSelectedTicketId] = useState<number | ''>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [cancelling, setCancelling] = useState(false);
-  const [result, setResult] = useState<{ success: boolean; message: string; refundAmount: number; releasedTrainId: number } | null>(null);
+  const [result, setResult] = useState<{ 
+    success: boolean; 
+    message: string; 
+    refundAmount: number; 
+    releasedTrainId: number;
+    originalFare?: number;
+    cancellationCharge?: number;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const confirmedTickets = tickets.filter(t => t.bookingStatus === 'CONFIRMED');
@@ -24,16 +38,41 @@ export const CancelTicketPage: React.FC<CancelTicketPageProps> = ({ tickets, onR
   );
 
   const activeTicket = confirmedTickets.find(t => t.ticketId === Number(selectedTicketId));
+  const cancellationFee = activeTicket ? Math.min(activeTicket.finalFare, 10.0) : 10.0;
+  const netRefund = activeTicket ? Math.max(0, parseFloat((activeTicket.finalFare - cancellationFee).toFixed(2))) : 0;
 
   const handleCancel = async () => {
-    if (!selectedTicketId) return;
+    if (!selectedTicketId || !activeTicket) return;
     setCancelling(true);
     setError(null);
     setResult(null);
 
     try {
       const res = await api.cancelTicket(Number(selectedTicketId));
-      setResult(res);
+      
+      const refundCalculated = res.refundAmount !== undefined ? res.refundAmount : netRefund;
+      const chargeCalculated = res.cancellationCharge !== undefined ? res.cancellationCharge : cancellationFee;
+
+      setResult({
+        ...res,
+        originalFare: res.originalFare ?? activeTicket.finalFare,
+        cancellationCharge: chargeCalculated,
+        refundAmount: refundCalculated,
+      });
+
+      // Credit refund back to smart card if commuter paid via Card and is logged in
+      if (activeTicket.paymentMethod === 'Card' && currentUser?.id) {
+        try {
+          await api.rechargeSmartCard(currentUser.id, refundCalculated);
+        } catch (e) {
+          console.warn('Smart card balance sync error:', e);
+        }
+        if (onBalanceUpdated) {
+          const currentBal = currentUser.balance ?? currentUser.smartCardBalance ?? 0;
+          onBalanceUpdated(parseFloat((currentBal + refundCalculated).toFixed(2)));
+        }
+      }
+
       onRefresh();
     } catch (err: any) {
       setError(err.message || 'Failed to cancel ticket');
@@ -69,18 +108,22 @@ export const CancelTicketPage: React.FC<CancelTicketPageProps> = ({ tickets, onR
               <p className="text-xs text-emerald-800">{result.message}</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 text-xs">
-            <div className="p-3 bg-white rounded-xl border border-emerald-200">
-              <span className="text-slate-500 block">Refund Amount</span>
-              <span className="text-base font-bold text-emerald-700">₹{result.refundAmount.toFixed(2)}</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2 text-xs">
+            <div className="p-2.5 bg-white rounded-xl border border-emerald-200">
+              <span className="text-slate-500 block text-[10px]">Original Fare</span>
+              <span className="text-sm font-bold text-slate-800">₹{(result.originalFare ?? 0).toFixed(2)}</span>
             </div>
-            <div className="p-3 bg-white rounded-xl border border-emerald-200">
-              <span className="text-slate-500 block">Train Capacity Restored</span>
-              <span className="text-base font-bold text-slate-800">Train #{result.releasedTrainId}</span>
+            <div className="p-2.5 bg-white rounded-xl border border-rose-200">
+              <span className="text-rose-600 block text-[10px]">Cancellation Charge</span>
+              <span className="text-sm font-bold text-rose-700">-₹{(result.cancellationCharge ?? 10.0).toFixed(2)}</span>
             </div>
-            <div className="p-3 bg-white rounded-xl border border-emerald-200">
-              <span className="text-slate-500 block">Status</span>
-              <span className="text-xs font-bold text-rose-600 uppercase">CANCELLED (Refunded)</span>
+            <div className="p-2.5 bg-white rounded-xl border border-emerald-200">
+              <span className="text-emerald-700 block text-[10px] font-bold">Net Refund Processed</span>
+              <span className="text-base font-black text-emerald-700 font-mono">₹{result.refundAmount.toFixed(2)}</span>
+            </div>
+            <div className="p-2.5 bg-white rounded-xl border border-slate-200">
+              <span className="text-slate-500 block text-[10px]">Train Seat</span>
+              <span className="text-xs font-bold text-slate-800">Released (Train #{result.releasedTrainId})</span>
             </div>
           </div>
         </div>
@@ -185,18 +228,18 @@ export const CancelTicketPage: React.FC<CancelTicketPageProps> = ({ tickets, onR
                   </div>
                 </div>
 
-                <div className="p-3 bg-rose-50 rounded-xl border border-rose-200/60 space-y-1.5">
-                  <div className="flex justify-between text-rose-900 font-bold">
-                    <span>Fare Paid:</span>
-                    <span>₹{activeTicket.finalFare.toFixed(2)}</span>
+                <div className="p-3.5 bg-rose-50/70 rounded-xl border border-rose-200 space-y-2">
+                  <div className="flex justify-between text-slate-800 font-semibold">
+                    <span>Original Fare Paid:</span>
+                    <span className="font-mono">₹{activeTicket.finalFare.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-rose-700 text-[11px]">
-                    <span>Cancellation Fee:</span>
-                    <span>₹0.00 (Zero Fee)</span>
+                  <div className="flex justify-between text-rose-700 text-xs">
+                    <span>Transit Cancellation Charge:</span>
+                    <span className="font-mono font-bold">-₹{cancellationFee.toFixed(2)}</span>
                   </div>
-                  <div className="pt-1.5 border-t border-rose-200 flex justify-between font-bold text-rose-900">
-                    <span>Refund Due:</span>
-                    <span className="text-sm font-black text-emerald-700">₹{activeTicket.finalFare.toFixed(2)}</span>
+                  <div className="pt-2 border-t border-rose-200/80 flex justify-between font-bold text-slate-900">
+                    <span>Net Refund to be Issued:</span>
+                    <span className="text-base font-black text-emerald-700 font-mono">₹{netRefund.toFixed(2)}</span>
                   </div>
                 </div>
 

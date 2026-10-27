@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const dataManager = require('./dataManager');
+const authManager = require('./authManager');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -241,6 +242,32 @@ app.post('/api/tickets/cancel', async (req, res) => {
     method: 'POST',
     body: JSON.stringify(req.body)
   });
+
+  if (response.status === 200 && response.data && response.data.success) {
+    const rawRefund = Number(response.data.refundAmount || 0);
+    // Standard MetroX cancellation fee: ₹10.00 administrative charge (capped at original fare)
+    const cancellationCharge = Math.min(rawRefund, 10.0);
+    const netRefund = Math.max(0, parseFloat((rawRefund - cancellationCharge).toFixed(2)));
+
+    // If customerId is provided, credit the net refund back to user's smart card balance
+    if (req.body.customerId) {
+      try {
+        authManager.updateCustomerBalance(req.body.customerId, netRefund);
+      } catch (err) {
+        console.warn('Could not auto-credit smart card balance on cancel:', err.message);
+      }
+    }
+
+    const enriched = {
+      ...response.data,
+      originalFare: rawRefund,
+      cancellationCharge,
+      refundAmount: netRefund,
+      message: `Ticket successfully cancelled. Cancellation charge of ₹${cancellationCharge.toFixed(2)} deducted. Net refund of ₹${netRefund.toFixed(2)} processed.`
+    };
+    return res.status(200).json(enriched);
+  }
+
   res.status(response.status).json(response.data);
 });
 
@@ -451,6 +478,71 @@ app.post('/api/system/load', async (req, res) => {
 app.get('/api/system/stats', async (req, res) => {
   const response = await forwardToCpp('/api/system/stats');
   res.status(response.status).json(response.data);
+});
+
+// 15. Authentication & Authorization APIs
+// Customer Sign Up
+app.post('/api/auth/customer/signup', async (req, res) => {
+  try {
+    const result = authManager.customerSignUp(req.body);
+    // Notify C++ to reload in-memory passengers list if needed
+    await triggerCppReload();
+    res.status(201).json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Customer Sign In
+app.post('/api/auth/customer/signin', (req, res) => {
+  try {
+    const result = authManager.customerSignIn(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+});
+
+// Admin Sign In
+app.post('/api/auth/admin/signin', (req, res) => {
+  try {
+    const result = authManager.adminSignIn(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+});
+
+// Current User Verification
+app.get('/api/auth/me', (req, res) => {
+  const { id, role } = req.query;
+  if (!id || !role) {
+    return res.status(400).json({ error: 'id and role query parameters are required' });
+  }
+  const user = authManager.getUserById(id, role);
+  if (!user) {
+    return res.status(404).json({ error: 'User not found or session expired' });
+  }
+  res.json({ user });
+});
+
+// Commuter Smart Card Recharge
+app.post('/api/auth/recharge', (req, res) => {
+  const { customerId, amount } = req.body;
+  if (!customerId || !amount) {
+    return res.status(400).json({ error: 'customerId and amount are required' });
+  }
+  try {
+    const updatedUser = authManager.updateCustomerBalance(customerId, Number(amount));
+    res.json({ success: true, user: updatedUser });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Sign Out
+app.post('/api/auth/signout', (req, res) => {
+  res.json({ success: true, message: 'Signed out successfully' });
 });
 
 app.listen(PORT, () => {

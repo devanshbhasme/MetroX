@@ -18,16 +18,56 @@ import { StationFacilitiesPage } from './pages/StationFacilitiesPage';
 import { AlertsPage } from './pages/AlertsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
+import { CustomerAuthPage } from './pages/CustomerAuthPage';
+import { AdminSignInPage } from './pages/AdminSignInPage';
+import { LoggedOutPage } from './pages/LoggedOutPage';
 
-import { Station, Train, Passenger, Ticket, SystemStats } from './types/metro';
+import { Station, Train, Passenger, Ticket, SystemStats, AuthUser } from './types/metro';
 import { api } from './services/api';
 import { AlertCircle, RefreshCw, Train as TrainIcon, Terminal } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const App: React.FC = () => {
-  // Passenger section is default when program/website starts
-  const [role, setRole] = useState<RoleType>('passenger');
-  const [currentTab, setCurrentTab] = useState<string>('passenger-dashboard');
+  // Authenticated user state (persisted across page reloads in localStorage)
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => {
+    try {
+      const stored = localStorage.getItem('metrox_auth_user');
+      if (stored) {
+        const u = JSON.parse(stored);
+        if (u.balance === undefined && u.smartCardBalance !== undefined) {
+          u.balance = u.smartCardBalance;
+        }
+        return u;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  });
+
+  // Role defaults to passenger or admin if currentUser is admin
+  const [role, setRole] = useState<RoleType>(() => {
+    try {
+      const stored = localStorage.getItem('metrox_auth_user');
+      if (stored) {
+        const u = JSON.parse(stored);
+        if (u.role === 'admin') return 'admin';
+      }
+    } catch {}
+    return 'passenger';
+  });
+
+  // CurrentTab: if not logged in, STRICTLY start on 'logged-out' (Mission / About page)
+  const [currentTab, setCurrentTab] = useState<string>(() => {
+    try {
+      const stored = localStorage.getItem('metrox_auth_user');
+      if (stored) {
+        const u = JSON.parse(stored);
+        return u.role === 'admin' ? 'admin-dashboard' : 'passenger-dashboard';
+      }
+    } catch {}
+    return 'logged-out';
+  });
 
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [stations, setStations] = useState<Station[]>([]);
@@ -66,17 +106,71 @@ export const App: React.FC = () => {
     fetchAllData();
   }, []);
 
+  const handleCustomerAuthSuccess = (user: AuthUser, token: string) => {
+    const bal = user.balance !== undefined ? user.balance : (user.smartCardBalance !== undefined ? user.smartCardBalance : 100);
+    const userWithToken = { ...user, token, balance: bal, smartCardBalance: bal };
+    setCurrentUser(userWithToken);
+    localStorage.setItem('metrox_auth_user', JSON.stringify(userWithToken));
+    setRole('passenger');
+    setCurrentTab('passenger-dashboard');
+    fetchAllData();
+  };
+
+  const handleAdminAuthSuccess = (user: AuthUser, token: string) => {
+    const userWithToken = { ...user, token };
+    setCurrentUser(userWithToken);
+    localStorage.setItem('metrox_auth_user', JSON.stringify(userWithToken));
+    setRole('admin');
+    setCurrentTab('admin-dashboard');
+  };
+
+  const handleSignOut = async () => {
+    try {
+      if (currentUser?.token) {
+        await api.signOut(currentUser.token);
+      }
+    } catch (err) {
+      console.warn('Sign out request failed:', err);
+    }
+    setCurrentUser(null);
+    localStorage.removeItem('metrox_auth_user');
+    setRole('passenger');
+    setCurrentTab('logged-out');
+  };
+
+  const handleBalanceUpdated = (newBalance: number) => {
+    setCurrentUser((prev) => {
+      if (!prev) return null;
+      const updated = { ...prev, balance: newBalance, smartCardBalance: newBalance };
+      localStorage.setItem('metrox_auth_user', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col text-[#0F172A] font-sans">
       
-      {/* Top Navbar with Section Switcher */}
-      <Navbar
-        role={role}
-        setRole={setRole}
-        currentTab={currentTab}
-        setCurrentTab={setCurrentTab}
-        onRefresh={fetchAllData}
-      />
+      {/* Top Navbar — REMOVED for mission/about page and ONLY rendered when user is logged in */}
+      {currentUser && currentTab !== 'logged-out' && (
+        <Navbar
+          role={role}
+          setRole={setRole}
+          currentTab={currentTab}
+          setCurrentTab={setCurrentTab}
+          onRefresh={fetchAllData}
+          currentUser={currentUser}
+          onSignInClick={() => setCurrentTab('customer-auth')}
+          onSignOut={handleSignOut}
+          onAdminClick={() => {
+            if (currentUser?.role === 'admin') {
+              setRole('admin');
+              setCurrentTab('admin-dashboard');
+            } else {
+              setCurrentTab('admin-signin');
+            }
+          }}
+        />
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -114,161 +208,225 @@ export const App: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
           >
-            {/* ================= PASSENGER SECTION ================= */}
-            {currentTab === 'passenger-dashboard' && (
-              <PassengerDashboardPage
-                stations={stations}
-                trains={trains}
-                tickets={tickets}
-                onNavigate={setCurrentTab}
-              />
-            )}
+            {/* ================= STRICT ACCESS CONTROL: IF NOT LOGGED IN ================= */}
+            {!currentUser ? (
+              <>
+                {currentTab === 'customer-auth' && (
+                  <CustomerAuthPage
+                    onAuthSuccess={handleCustomerAuthSuccess}
+                    onNavigateHome={() => setCurrentTab('logged-out')}
+                  />
+                )}
 
-            {currentTab === 'passenger-booking' && (
-              <BookingPage
-                stations={stations}
-                trains={trains}
-                passengers={passengers}
-                onBookingSuccess={fetchAllData}
-              />
-            )}
+                {currentTab === 'admin-signin' && (
+                  <AdminSignInPage
+                    onAdminAuthSuccess={handleAdminAuthSuccess}
+                    onReturnToPassenger={() => {
+                      setRole('passenger');
+                      setCurrentTab('logged-out');
+                    }}
+                  />
+                )}
 
-            {currentTab === 'passenger-cancel' && (
-              <CancelTicketPage
-                tickets={tickets}
-                onRefresh={fetchAllData}
-              />
-            )}
+                {currentTab !== 'customer-auth' && currentTab !== 'admin-signin' && (
+                  <LoggedOutPage
+                    onSignIn={() => setCurrentTab('customer-auth')}
+                    onAdminSignIn={() => setCurrentTab('admin-signin')}
+                  />
+                )}
+              </>
+            ) : (
+              /* ================= WHEN USER IS LOGGED IN ================= */
+              <>
+                {currentTab === 'logged-out' && (
+                  <LoggedOutPage
+                    onSignIn={() => setCurrentTab(currentUser.role === 'admin' ? 'admin-dashboard' : 'passenger-dashboard')}
+                    onAdminSignIn={() => setCurrentTab('admin-signin')}
+                  />
+                )}
 
-            {currentTab === 'passenger-tickets' && (
-              <TicketsPage
-                tickets={tickets}
-                onRefresh={fetchAllData}
-              />
-            )}
+                {/* Admin Clearance Guard */}
+                {role === 'admin' && currentUser.role !== 'admin' && (
+                  <AdminSignInPage
+                    onAdminAuthSuccess={handleAdminAuthSuccess}
+                    onReturnToPassenger={() => {
+                      setRole('passenger');
+                      setCurrentTab('passenger-dashboard');
+                    }}
+                  />
+                )}
 
-            {currentTab === 'passenger-map' && (
-              <MetroMapPage
-                stations={stations}
-                onSelectRoute={() => setCurrentTab('passenger-booking')}
-              />
-            )}
+                {/* ================= PASSENGER SECTION ================= */}
+                {role === 'passenger' && (
+                  <>
+                    {currentTab === 'passenger-dashboard' && (
+                      <PassengerDashboardPage
+                        stations={stations}
+                        trains={trains}
+                        tickets={tickets}
+                        onNavigate={setCurrentTab}
+                      />
+                    )}
 
-            {currentTab === 'passenger-routes' && (
-              <RoutesInterchangesPage
-                stations={stations}
-              />
-            )}
+                    {currentTab === 'passenger-booking' && (
+                      <BookingPage
+                        stations={stations}
+                        trains={trains}
+                        passengers={passengers}
+                        currentUser={currentUser}
+                        onBookingSuccess={fetchAllData}
+                        onBalanceUpdated={handleBalanceUpdated}
+                      />
+                    )}
 
-            {currentTab === 'passenger-schedules' && (
-              <SchedulesPage
-                isAdmin={false}
-              />
-            )}
+                    {currentTab === 'passenger-cancel' && (
+                      <CancelTicketPage
+                        tickets={tickets}
+                        onRefresh={fetchAllData}
+                        currentUser={currentUser}
+                        onBalanceUpdated={handleBalanceUpdated}
+                      />
+                    )}
 
-            {currentTab === 'passenger-fares' && (
-              <FareCheckPage
-                stations={stations}
-                isAdmin={false}
-              />
-            )}
+                    {currentTab === 'passenger-tickets' && (
+                      <TicketsPage
+                        tickets={tickets}
+                        onRefresh={fetchAllData}
+                      />
+                    )}
 
-            {currentTab === 'passenger-facilities' && (
-              <StationFacilitiesPage
-                stations={stations}
-              />
-            )}
+                    {currentTab === 'passenger-map' && (
+                      <MetroMapPage
+                        stations={stations}
+                        onSelectRoute={() => setCurrentTab('passenger-booking')}
+                      />
+                    )}
 
-            {currentTab === 'passenger-alerts' && (
-              <AlertsPage
-                isAdmin={false}
-              />
-            )}
+                    {currentTab === 'passenger-routes' && (
+                      <RoutesInterchangesPage
+                        stations={stations}
+                      />
+                    )}
 
-            {currentTab === 'passenger-profile' && (
-              <ProfilePage
-                stations={stations}
-                tickets={tickets}
-              />
-            )}
+                    {currentTab === 'passenger-schedules' && (
+                      <SchedulesPage
+                        isAdmin={false}
+                      />
+                    )}
 
-            {/* ================= ADMIN SECTION ================= */}
-            {currentTab === 'admin-dashboard' && (
-              <AdminDashboardPage
-                stats={stats}
-                stations={stations}
-                trains={trains}
-                tickets={tickets}
-                onNavigate={setCurrentTab}
-                onRefresh={fetchAllData}
-              />
-            )}
+                    {currentTab === 'passenger-fares' && (
+                      <FareCheckPage
+                        stations={stations}
+                        isAdmin={false}
+                      />
+                    )}
 
-            {currentTab === 'admin-trains' && (
-              <TrainsPage
-                trains={trains}
-                onRefresh={fetchAllData}
-                isAdmin={true}
-              />
-            )}
+                    {currentTab === 'passenger-facilities' && (
+                      <StationFacilitiesPage
+                        stations={stations}
+                      />
+                    )}
 
-            {currentTab === 'admin-stations' && (
-              <StationsPage
-                stations={stations}
-                onRefresh={fetchAllData}
-                isAdmin={true}
-              />
-            )}
+                    {currentTab === 'passenger-alerts' && (
+                      <AlertsPage
+                        isAdmin={false}
+                      />
+                    )}
 
-            {currentTab === 'admin-tracks' && (
-              <TrackManagementPage
-                stations={stations}
-                onRefresh={fetchAllData}
-              />
-            )}
+                    {currentTab === 'passenger-profile' && (
+                      <ProfilePage
+                        stations={stations}
+                        tickets={tickets}
+                        currentUser={currentUser}
+                        onBalanceUpdated={handleBalanceUpdated}
+                      />
+                    )}
+                  </>
+                )}
 
-            {currentTab === 'admin-passengers' && (
-              <PassengersPage
-                passengers={passengers}
-                onRefresh={fetchAllData}
-              />
-            )}
+                {/* ================= ADMIN SECTION ================= */}
+                {role === 'admin' && currentUser.role === 'admin' && (
+                  <>
+                    {currentTab === 'admin-dashboard' && (
+                      <AdminDashboardPage
+                        stats={stats}
+                        stations={stations}
+                        trains={trains}
+                        tickets={tickets}
+                        onNavigate={setCurrentTab}
+                        onRefresh={fetchAllData}
+                      />
+                    )}
 
-            {currentTab === 'admin-tickets' && (
-              <TicketsPage
-                tickets={tickets}
-                onRefresh={fetchAllData}
-              />
-            )}
+                    {currentTab === 'admin-trains' && (
+                      <TrainsPage
+                        trains={trains}
+                        onRefresh={fetchAllData}
+                        isAdmin={true}
+                      />
+                    )}
 
-            {currentTab === 'admin-capacity' && (
-              <TrainCapacityPage
-                trains={trains}
-                onRefresh={fetchAllData}
-              />
-            )}
+                    {currentTab === 'admin-stations' && (
+                      <StationsPage
+                        stations={stations}
+                        onRefresh={fetchAllData}
+                        isAdmin={true}
+                      />
+                    )}
 
-            {currentTab === 'admin-schedules' && (
-              <SchedulesPage
-                isAdmin={true}
-              />
-            )}
+                    {currentTab === 'admin-tracks' && (
+                      <TrackManagementPage
+                        stations={stations}
+                        onRefresh={fetchAllData}
+                      />
+                    )}
 
-            {currentTab === 'admin-fares' && (
-              <FareCheckPage
-                stations={stations}
-                isAdmin={true}
-              />
-            )}
+                    {currentTab === 'admin-passengers' && (
+                      <PassengersPage
+                        passengers={passengers}
+                        onRefresh={fetchAllData}
+                      />
+                    )}
 
-            {currentTab === 'admin-alerts' && (
-              <AlertsPage
-                isAdmin={true}
-              />
-            )}
+                    {currentTab === 'admin-tickets' && (
+                      <TicketsPage
+                        tickets={tickets}
+                        onRefresh={fetchAllData}
+                      />
+                    )}
 
-            {currentTab === 'admin-analytics' && (
-              <AnalyticsPage />
+                    {currentTab === 'admin-capacity' && (
+                      <TrainCapacityPage
+                        trains={trains}
+                        onRefresh={fetchAllData}
+                      />
+                    )}
+
+                    {currentTab === 'admin-schedules' && (
+                      <SchedulesPage
+                        isAdmin={true}
+                      />
+                    )}
+
+                    {currentTab === 'admin-fares' && (
+                      <FareCheckPage
+                        stations={stations}
+                        isAdmin={true}
+                      />
+                    )}
+
+                    {currentTab === 'admin-alerts' && (
+                      <AlertsPage
+                        isAdmin={true}
+                      />
+                    )}
+
+                    {currentTab === 'admin-analytics' && (
+                      <AnalyticsPage />
+                    )}
+                  </>
+                )}
+              </>
             )}
           </motion.div>
         )}
@@ -280,13 +438,19 @@ export const App: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-2">
             <div className={`w-6 h-6 rounded flex items-center justify-center text-white ${
-              role === 'admin' ? 'bg-purple-700' : 'bg-[#0047BA]'
+              currentUser ? (role === 'admin' ? 'bg-purple-700' : 'bg-[#0047BA]') : 'bg-slate-700'
             }`}>
               <TrainIcon className="w-3.5 h-3.5" />
             </div>
             <span className="font-bold text-[#0F172A]">MetroX Transit Authority</span>
             <span>•</span>
-            <span>Active Mode: <strong className="capitalize">{role} Section</strong></span>
+            <span>
+              {currentUser ? (
+                <>Active Mode: <strong className="capitalize">{role} Section</strong> ({currentUser.name})</>
+              ) : (
+                <>Public Mission Overview • <strong className="text-amber-600">Authentication Required</strong></>
+              )}
+            </span>
           </div>
 
           <div className="flex items-center space-x-4">

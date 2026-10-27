@@ -232,12 +232,22 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ tickets, onRefresh }) 
             </div>
 
             <p className="text-xs text-[#334155] leading-relaxed">
-              Cancelling will release <strong>1 seat</strong> back onto <strong>{cancelModalTicket.trainName}</strong> and issue a full refund of <strong className="font-mono text-emerald-700">₹{Number(cancelModalTicket.finalFare).toFixed(2)}</strong> via original payment method ({cancelModalTicket.paymentMethod}).
+              Cancelling will release <strong>1 seat</strong> back onto <strong>{cancelModalTicket.trainName}</strong>. A standard cancellation charge of <strong className="text-rose-600 font-mono">₹{Math.min(cancelModalTicket.finalFare, 10.0).toFixed(2)}</strong> applies.
             </p>
 
-            <div className="p-3 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] text-xs text-[#64748B] space-y-1">
-              <div>Passenger: <strong className="text-[#0F172A]">{cancelModalTicket.passengerName}</strong></div>
-              <div>Journey: <strong className="text-[#0F172A]">{cancelModalTicket.sourceStationName} → {cancelModalTicket.destinationStationName}</strong></div>
+            <div className="p-3 bg-rose-50/60 rounded-xl border border-rose-200/80 text-xs space-y-1">
+              <div className="flex justify-between text-slate-700">
+                <span>Original Fare:</span>
+                <span className="font-mono font-semibold">₹{Number(cancelModalTicket.finalFare).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-rose-700">
+                <span>Cancellation Fee:</span>
+                <span className="font-mono font-bold">-₹{Math.min(cancelModalTicket.finalFare, 10.0).toFixed(2)}</span>
+              </div>
+              <div className="pt-1 border-t border-rose-200 flex justify-between font-bold text-slate-900">
+                <span>Net Refund to be Processed:</span>
+                <span className="font-mono text-emerald-700">₹{Math.max(0, cancelModalTicket.finalFare - Math.min(cancelModalTicket.finalFare, 10.0)).toFixed(2)}</span>
+              </div>
             </div>
 
             <div className="flex justify-end space-x-2 pt-2">

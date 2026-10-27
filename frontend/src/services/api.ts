@@ -12,7 +12,11 @@ import {
   TransitAlert,
   UserProfile,
   AnalyticsData,
-  FleetAvailability
+  FleetAvailability,
+  AuthUser,
+  CustomerSignUpPayload,
+  CustomerSignInPayload,
+  AdminSignInPayload
 } from '../types/metro';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -133,7 +137,14 @@ export const api = {
     body: JSON.stringify(bookingData)
   }),
   cancelTicket: (ticketId: number) =>
-    fetchJson<{ success: boolean; message: string; refundAmount: number; releasedTrainId: number }>('/tickets/cancel', {
+    fetchJson<{ 
+      success: boolean; 
+      message: string; 
+      refundAmount: number; 
+      releasedTrainId: number;
+      originalFare?: number;
+      cancellationCharge?: number;
+    }>('/tickets/cancel', {
       method: 'POST',
       body: JSON.stringify({ ticketId })
     }),
@@ -197,5 +208,38 @@ export const api = {
     }),
 
   // Analytics
-  getAnalytics: () => fetchJson<AnalyticsData>('/analytics')
+  getAnalytics: () => fetchJson<AnalyticsData>('/analytics'),
+
+  // Authentication & Authorization
+  customerSignUp: (data: CustomerSignUpPayload) =>
+    fetchJson<{ user: AuthUser; token: string }>('/auth/customer/signup', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+
+  customerSignIn: (data: CustomerSignInPayload) =>
+    fetchJson<{ user: AuthUser; token: string }>('/auth/customer/signin', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+
+  adminSignIn: (data: AdminSignInPayload) =>
+    fetchJson<{ user: AuthUser; token: string }>('/auth/admin/signin', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+
+  getAuthMe: (id: string | number, role: string) =>
+    fetchJson<{ user: AuthUser }>(`/auth/me?id=${id}&role=${role}`),
+
+  rechargeSmartCard: (customerId: number | string, amount: number) =>
+    fetchJson<{ success: boolean; user: AuthUser }>('/auth/recharge', {
+      method: 'POST',
+      body: JSON.stringify({ customerId, amount })
+    }),
+
+  signOut: (_token?: string) =>
+    fetchJson<{ success: boolean; message: string }>('/auth/signout', {
+      method: 'POST'
+    })
 };

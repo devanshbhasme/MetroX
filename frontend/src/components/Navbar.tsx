@@ -17,6 +17,7 @@ import {
   BarChart3,
   GitFork,
   LogOut,
+  LogIn,
   RotateCcw,
   User,
   Shield,
@@ -24,9 +25,11 @@ import {
   ChevronDown,
   Menu,
   X,
-  Server
+  Server,
+  Target
 } from 'lucide-react';
 import { api } from '../services/api';
+import { AuthUser } from '../types/metro';
 
 export type RoleType = 'passenger' | 'admin';
 
@@ -36,6 +39,10 @@ interface NavbarProps {
   currentTab: string;
   setCurrentTab: (tab: string) => void;
   onRefresh: () => void;
+  currentUser?: AuthUser | null;
+  onSignInClick?: () => void;
+  onSignOut?: () => void;
+  onAdminClick?: () => void;
 }
 
 interface NavSubItem {
@@ -56,7 +63,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   setRole,
   currentTab,
   setCurrentTab,
-  onRefresh
+  onRefresh,
+  currentUser,
+  onSignInClick,
+  onSignOut,
+  onAdminClick
 }) => {
   const [saving, setSaving] = useState(false);
   const [notification, setNotification] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -122,14 +133,16 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   const handleLogout = () => {
-    if (role === 'admin') {
-      setRole('passenger');
-      setCurrentTab('passenger-dashboard');
-      showNotification('Exited Admin Console. Switched to Passenger Portal.', 'success');
+    if (onSignOut) {
+      onSignOut();
+      showNotification('Signed out safely. Welcome to MetroX Mission overview.', 'success');
     } else {
-      setCurrentTab('passenger-dashboard');
-      showNotification('Commuter session reset to Dashboard.', 'success');
+      if (role === 'admin') {
+        setRole('passenger');
+      }
+      showNotification('Switched to MetroX Mission overview.', 'success');
     }
+    setCurrentTab('logged-out');
     setActiveDropdown(null);
     setIsMobileMenuOpen(false);
   };
@@ -161,6 +174,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         { id: 'passenger-fares', label: 'Check Fare Rates', desc: 'Distance calculator & student/senior concessions', icon: Calculator },
         { id: 'passenger-facilities', label: 'Station Facilities', desc: 'Lifts, wheelchair ramps, TVMs & bus feeder bays', icon: Building2 },
         { id: 'passenger-alerts', label: 'Service Alerts & Delays', desc: 'Live corridor pacing and maintenance notices', icon: ShieldAlert },
+        { id: 'logged-out', label: 'About & Our Purpose', desc: 'Civic mission, carbon offset & tech architecture', icon: Target },
       ]
     }
   ];
@@ -369,8 +383,15 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               <button
                 onClick={() => {
-                  setRole('admin');
-                  setCurrentTab('admin-dashboard');
+                  if (currentUser?.role === 'admin') {
+                    setRole('admin');
+                    setCurrentTab('admin-dashboard');
+                  } else if (onAdminClick) {
+                    onAdminClick();
+                  } else {
+                    setRole('admin');
+                    setCurrentTab('admin-dashboard');
+                  }
                   setActiveDropdown(null);
                 }}
                 className={`px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all ${
@@ -385,28 +406,51 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             </div>
 
-            {/* Commuter Quick Profile Button (Passenger Mode) */}
+            {/* Commuter Quick Profile Button or Sign In Button */}
             {role === 'passenger' && (
-              <button
-                onClick={() => {
-                  setCurrentTab('passenger-profile');
-                  setActiveDropdown(null);
-                }}
-                className={`hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-xl border transition ${
-                  currentTab === 'passenger-profile'
-                    ? 'bg-blue-50 border-blue-200 text-[#0047BA]'
-                    : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'
-                }`}
-                title="View Smart Card & Preferences"
-              >
-                <div className="w-6 h-6 rounded-full bg-blue-100 text-[#0047BA] flex items-center justify-center font-bold text-[10px]">
-                  JD
-                </div>
-                <div className="text-left text-xs leading-none">
-                  <span className="font-semibold block text-slate-800">John Doe</span>
-                  <span className="text-[10px] text-emerald-600 font-bold">₹450.00</span>
-                </div>
-              </button>
+              currentUser ? (
+                <button
+                  onClick={() => {
+                    setCurrentTab('passenger-profile');
+                    setActiveDropdown(null);
+                  }}
+                  className={`hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-xl border transition ${
+                    currentTab === 'passenger-profile'
+                      ? 'bg-blue-50 border-blue-200 text-[#0047BA]'
+                      : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'
+                  }`}
+                  title="View Smart Card & Preferences"
+                >
+                  <div className="w-6 h-6 rounded-full bg-blue-100 text-[#0047BA] flex items-center justify-center font-bold text-[10px]">
+                    {currentUser.name ? currentUser.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'ME'}
+                  </div>
+                  <div className="text-left text-xs leading-none">
+                    <span className="font-semibold block text-slate-800 max-w-[100px] truncate">{currentUser.name}</span>
+                    <span className="text-[10px] text-emerald-600 font-bold">₹{((currentUser.balance ?? currentUser.smartCardBalance) ?? 0).toFixed(2)}</span>
+                  </div>
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    if (onSignInClick) onSignInClick();
+                    else setCurrentTab('customer-auth');
+                    setActiveDropdown(null);
+                  }}
+                  className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-[#0047BA] hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition"
+                  title="Sign In or Register"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Sign In</span>
+                </button>
+              )
+            )}
+
+            {/* Admin Badge in Admin Mode */}
+            {role === 'admin' && currentUser?.role === 'admin' && (
+              <div className="hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold">
+                <Shield className="w-3.5 h-3.5 text-purple-600" />
+                <span className="truncate max-w-[110px]">{currentUser.name || 'Admin'}</span>
+              </div>
             )}
 
             {/* System Persistence Menu (Clean Popover instead of cluttered buttons) */}
@@ -560,18 +604,35 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          {/* Profile (Passenger) */}
+          {/* Profile / Sign In (Passenger) */}
           {role === 'passenger' && (
-            <button
-              onClick={() => {
-                setCurrentTab('passenger-profile');
-                setIsMobileMenuOpen(false);
-              }}
-              className="w-full p-2.5 rounded-xl font-bold text-xs flex items-center space-x-2 bg-slate-50 text-slate-800"
-            >
-              <User className="w-4 h-4" />
-              <span>My Profile & Preferences (Balance: ₹450)</span>
-            </button>
+            currentUser ? (
+              <button
+                onClick={() => {
+                  setCurrentTab('passenger-profile');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full p-2.5 rounded-xl font-bold text-xs flex items-center justify-between bg-slate-50 text-slate-800"
+              >
+                <div className="flex items-center space-x-2">
+                  <User className="w-4 h-4 text-[#0047BA]" />
+                  <span>{currentUser.name} ({currentUser.category})</span>
+                </div>
+                <span className="text-emerald-600 font-bold">₹{((currentUser.balance ?? currentUser.smartCardBalance) ?? 0).toFixed(2)}</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  if (onSignInClick) onSignInClick();
+                  else setCurrentTab('customer-auth');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full p-2.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 bg-[#0047BA] text-white shadow-xs"
+              >
+                <LogIn className="w-4 h-4" />
+                <span>Sign In / Register</span>
+              </button>
+            )
           )}
         </div>
       )}
