@@ -1,17 +1,18 @@
 #include "../include/Train.h"
 #include <iostream>
 #include <iomanip>
+using namespace std;
 
 Train::Train() : id(0), name(""), capacity(0), currentPassengers(0), status("IN_SERVICE") {}
 
-Train::Train(int id, const std::string& name, int capacity, const std::string& status)
+Train::Train(int id, const string& name, int capacity, const string& status)
     : id(id), name(name), capacity(capacity > 0 ? capacity : 100), currentPassengers(0), status(status) {}
 
 int Train::getId() const {
     return id;
 }
 
-std::string Train::getName() const {
+string Train::getName() const {
     return name;
 }
 
@@ -23,11 +24,11 @@ int Train::getCurrentPassengers() const {
     return currentPassengers;
 }
 
-std::string Train::getStatus() const {
+string Train::getStatus() const {
     return status;
 }
 
-void Train::setName(const std::string& newName) {
+void Train::setName(const string& newName) {
     name = newName;
 }
 
@@ -37,7 +38,7 @@ void Train::setCapacity(int newCapacity) {
     }
 }
 
-void Train::setStatus(const std::string& newStatus) {
+void Train::setStatus(const string& newStatus) {
     status = newStatus;
 }
 
@@ -77,11 +78,11 @@ double Train::getOccupancyRate() const {
 }
 
 void Train::display() const {
-    std::cout << "Train ID: " << std::setw(3) << id 
-              << " | Model/Line: " << std::setw(18) << std::left << name 
-              << " | Status: " << std::setw(12) << status
-              << " | Capacity: " << std::setw(4) << std::right << capacity
-              << " | Onboard: " << std::setw(4) << std::right << currentPassengers
-              << " | Available: " << std::setw(4) << std::right << getAvailableCapacity()
-              << " | Load: " << std::fixed << std::setprecision(1) << getOccupancyRate() << "%\n";
+    cout << "Train ID: " << setw(3) << id 
+              << " | Model/Line: " << setw(18) << left << name 
+              << " | Status: " << setw(12) << status
+              << " | Capacity: " << setw(4) << right << capacity
+              << " | Onboard: " << setw(4) << right << currentPassengers
+              << " | Available: " << setw(4) << right << getAvailableCapacity()
+              << " | Load: " << fixed << setprecision(1) << getOccupancyRate() << "%\n";
 }

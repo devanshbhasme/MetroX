@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <sstream>
 #include <ctime>
+using namespace std;
 
 Ticket::Ticket()
     : ticketId(0), passengerId(0), sourceStationId(0), destinationStationId(0),
@@ -11,16 +12,16 @@ Ticket::Ticket()
 
 Ticket::Ticket(int ticketId, int passengerId, int sourceId, int destId, int trainId,
                double distance, double baseFare, double discountPercent, double finalFare,
-               const std::string& paymentMethod, const std::string& bookingTime)
+               const string& paymentMethod, const string& bookingTime)
     : ticketId(ticketId), passengerId(passengerId), sourceStationId(sourceId),
       destinationStationId(destId), trainId(trainId), distance(distance),
       baseFare(baseFare), discountPercent(discountPercent), finalFare(finalFare),
       bookingStatus("CONFIRMED"), paymentStatus("PAID"), paymentMethod(paymentMethod),
       bookingTime(bookingTime) {
     if (this->bookingTime.empty()) {
-        std::time_t now = std::time(nullptr);
+        time_t now = time(nullptr);
         char buf[64];
-        std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+        strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", localtime(&now));
         this->bookingTime = buf;
     }
 }
@@ -61,19 +62,19 @@ double Ticket::getFinalFare() const {
     return finalFare;
 }
 
-std::string Ticket::getBookingStatus() const {
+string Ticket::getBookingStatus() const {
     return bookingStatus;
 }
 
-std::string Ticket::getPaymentStatus() const {
+string Ticket::getPaymentStatus() const {
     return paymentStatus;
 }
 
-std::string Ticket::getPaymentMethod() const {
+string Ticket::getPaymentMethod() const {
     return paymentMethod;
 }
 
-std::string Ticket::getBookingTime() const {
+string Ticket::getBookingTime() const {
     return bookingTime;
 }
 
@@ -81,11 +82,11 @@ bool Ticket::isBooked() const {
     return bookingStatus == "CONFIRMED";
 }
 
-void Ticket::setBookingStatus(const std::string& status) {
+void Ticket::setBookingStatus(const string& status) {
     bookingStatus = status;
 }
 
-void Ticket::setPaymentStatus(const std::string& status) {
+void Ticket::setPaymentStatus(const string& status) {
     paymentStatus = status;
 }
 
@@ -99,46 +100,46 @@ bool Ticket::cancelTicket() {
 }
 
 void Ticket::display() const {
-    std::cout << "Ticket #" << std::setw(5) << ticketId
-              << " | Pass ID: " << std::setw(4) << passengerId
+    cout << "Ticket #" << setw(5) << ticketId
+              << " | Pass ID: " << setw(4) << passengerId
               << " | Route: [" << sourceStationId << "] -> [" << destinationStationId << "]"
               << " | Train: [" << trainId << "]"
-              << " | Dist: " << std::fixed << std::setprecision(1) << distance << " km"
-              << " | Fare: ₹" << std::setprecision(2) << finalFare
+              << " | Dist: " << fixed << setprecision(1) << distance << " km"
+              << " | Fare: ₹" << setprecision(2) << finalFare
               << " | Status: " << bookingStatus
               << " | Paid: " << paymentStatus << " (" << paymentMethod << ")\n";
 }
 
-void Ticket::displayDetailed(const std::string& passengerName,
-                             const std::string& passengerType,
-                             const std::string& sourceName,
-                             const std::string& destName,
-                             const std::string& trainName) const {
-    std::cout << "\n=======================================================\n";
-    std::cout << "               METROX TRANSIT BOARDING PASS            \n";
-    std::cout << "=======================================================\n";
-    std::cout << " Ticket Number   : #" << ticketId << "\n";
-    std::cout << " Booking Time    : " << bookingTime << "\n";
-    std::cout << " Passenger       : " << passengerName << " (ID: " << passengerId 
+void Ticket::displayDetailed(const string& passengerName,
+                             const string& passengerType,
+                             const string& sourceName,
+                             const string& destName,
+                             const string& trainName) const {
+    cout << "\n=======================================================\n";
+    cout << "               METROX TRANSIT BOARDING PASS            \n";
+    cout << "=======================================================\n";
+    cout << " Ticket Number   : #" << ticketId << "\n";
+    cout << " Booking Time    : " << bookingTime << "\n";
+    cout << " Passenger       : " << passengerName << " (ID: " << passengerId 
               << ", Category: " << passengerType << ")\n";
-    std::cout << " Assigned Train  : " << trainName << " (ID: " << trainId << ")\n";
-    std::cout << " Journey         : " << sourceName << " [#" << sourceStationId << "]"
+    cout << " Assigned Train  : " << trainName << " (ID: " << trainId << ")\n";
+    cout << " Journey         : " << sourceName << " [#" << sourceStationId << "]"
               << "  --->  " << destName << " [#" << destinationStationId << "]\n";
-    std::cout << " Total Distance  : " << std::fixed << std::setprecision(2) << distance << " km\n";
-    std::cout << "-------------------------------------------------------\n";
-    std::cout << " Base Fare       : ₹" << std::fixed << std::setprecision(2) << baseFare << "\n";
-    std::cout << " Concession      : " << std::fixed << std::setprecision(0) << (discountPercent * 100.0) 
-              << "% (-₹" << std::setprecision(2) << (baseFare * discountPercent) << ")\n";
-    std::cout << " Total Fare Paid : ₹" << std::fixed << std::setprecision(2) << finalFare << "\n";
-    std::cout << " Payment Method  : " << paymentMethod << " (Simulated)\n";
-    std::cout << " Booking Status  : " << bookingStatus << "\n";
-    std::cout << " Payment Status  : " << paymentStatus << "\n";
-    std::cout << "=======================================================\n\n";
+    cout << " Total Distance  : " << fixed << setprecision(2) << distance << " km\n";
+    cout << "-------------------------------------------------------\n";
+    cout << " Base Fare       : ₹" << fixed << setprecision(2) << baseFare << "\n";
+    cout << " Concession      : " << fixed << setprecision(0) << (discountPercent * 100.0) 
+              << "% (-₹" << setprecision(2) << (baseFare * discountPercent) << ")\n";
+    cout << " Total Fare Paid : ₹" << fixed << setprecision(2) << finalFare << "\n";
+    cout << " Payment Method  : " << paymentMethod << " (Simulated)\n";
+    cout << " Booking Status  : " << bookingStatus << "\n";
+    cout << " Payment Status  : " << paymentStatus << "\n";
+    cout << "=======================================================\n\n";
 }
 
-std::string Ticket::serialize() const {
+string Ticket::serialize() const {
     // Format: TICKET_ID|PASS_ID|SRC_ID|DEST_ID|TRAIN_ID|DIST|BASE_FARE|DISCOUNT|FINAL_FARE|STATUS|PAY_STATUS|PAY_METHOD|BOOKING_TIME
-    std::ostringstream oss;
+    ostringstream oss;
     oss << ticketId << "|" << passengerId << "|" << sourceStationId << "|"
         << destinationStationId << "|" << trainId << "|" << distance << "|"
         << baseFare << "|" << discountPercent << "|" << finalFare << "|"

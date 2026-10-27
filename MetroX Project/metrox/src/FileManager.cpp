@@ -1,6 +1,7 @@
 #include "../include/FileManager.h"
 #include "../include/StudentPassenger.h"
 #include "../include/SeniorPassenger.h"
+using namespace std;
 
 #include <fstream>
 #include <sstream>
@@ -15,15 +16,15 @@
 #define MKDIR(d) mkdir(d, 0755)
 #endif
 
-void FileManager::ensureDirectoryExists(const std::string& dirPath) {
+void FileManager::ensureDirectoryExists(const string& dirPath) {
     MKDIR(dirPath.c_str());
 }
 
-static std::vector<std::string> split(const std::string& str, char delimiter) {
-    std::vector<std::string> tokens;
-    std::string token;
-    std::istringstream tokenStream(str);
-    while (std::getline(tokenStream, token, delimiter)) {
+static vector<string> split(const string& str, char delimiter) {
+    vector<string> tokens;
+    string token;
+    istringstream tokenStream(str);
+    while (getline(tokenStream, token, delimiter)) {
         tokens.push_back(token);
     }
     return tokens;
@@ -31,8 +32,8 @@ static std::vector<std::string> split(const std::string& str, char delimiter) {
 
 // ---------------- STATIONS ----------------
 
-bool FileManager::saveStations(const std::string& filename, const std::map<int, Station>& stations) {
-    std::ofstream outFile(filename);
+bool FileManager::saveStations(const string& filename, const map<int, Station>& stations) {
+    ofstream outFile(filename);
     if (!outFile.is_open()) return false;
 
     for (const auto& [id, station] : stations) {
@@ -50,19 +51,19 @@ bool FileManager::saveStations(const std::string& filename, const std::map<int, 
     return true;
 }
 
-bool FileManager::loadStations(const std::string& filename, std::map<int, Station>& stations, int& maxId) {
-    std::ifstream inFile(filename);
+bool FileManager::loadStations(const string& filename, map<int, Station>& stations, int& maxId) {
+    ifstream inFile(filename);
     if (!inFile.is_open()) return false;
 
     stations.clear();
-    std::string line;
-    while (std::getline(inFile, line)) {
+    string line;
+    while (getline(inFile, line)) {
         if (line.empty() || line[0] == '#') continue;
         auto tokens = split(line, '|');
         if (tokens.size() >= 3) {
-            int id = std::stoi(tokens[0]);
-            std::string name = tokens[1];
-            std::string loc = tokens[2];
+            int id = stoi(tokens[0]);
+            string name = tokens[1];
+            string loc = tokens[2];
             Station st(id, name, loc);
 
             if (tokens.size() >= 4 && !tokens[3].empty()) {
@@ -70,8 +71,8 @@ bool FileManager::loadStations(const std::string& filename, std::map<int, Statio
                 for (const auto& cp : connPairs) {
                     auto parts = split(cp, ':');
                     if (parts.size() == 2) {
-                        int neighbor = std::stoi(parts[0]);
-                        double dist = std::stod(parts[1]);
+                        int neighbor = stoi(parts[0]);
+                        double dist = stod(parts[1]);
                         st.addConnection(neighbor, dist);
                     }
                 }
@@ -86,8 +87,8 @@ bool FileManager::loadStations(const std::string& filename, std::map<int, Statio
 
 // ---------------- TRAINS ----------------
 
-bool FileManager::saveTrains(const std::string& filename, const std::map<int, Train>& trains) {
-    std::ofstream outFile(filename);
+bool FileManager::saveTrains(const string& filename, const map<int, Train>& trains) {
+    ofstream outFile(filename);
     if (!outFile.is_open()) return false;
 
     for (const auto& [id, train] : trains) {
@@ -100,21 +101,21 @@ bool FileManager::saveTrains(const std::string& filename, const std::map<int, Tr
     return true;
 }
 
-bool FileManager::loadTrains(const std::string& filename, std::map<int, Train>& trains, int& maxId) {
-    std::ifstream inFile(filename);
+bool FileManager::loadTrains(const string& filename, map<int, Train>& trains, int& maxId) {
+    ifstream inFile(filename);
     if (!inFile.is_open()) return false;
 
     trains.clear();
-    std::string line;
-    while (std::getline(inFile, line)) {
+    string line;
+    while (getline(inFile, line)) {
         if (line.empty() || line[0] == '#') continue;
         auto tokens = split(line, '|');
         if (tokens.size() >= 5) {
-            int id = std::stoi(tokens[0]);
-            std::string name = tokens[1];
-            int cap = std::stoi(tokens[2]);
-            int curr = std::stoi(tokens[3]);
-            std::string status = tokens[4];
+            int id = stoi(tokens[0]);
+            string name = tokens[1];
+            int cap = stoi(tokens[2]);
+            int curr = stoi(tokens[3]);
+            string status = tokens[4];
 
             Train tr(id, name, cap, status);
             if (curr > 0) {
@@ -129,8 +130,8 @@ bool FileManager::loadTrains(const std::string& filename, std::map<int, Train>& 
 
 // ---------------- PASSENGERS (POLYMORPHIC) ----------------
 
-bool FileManager::savePassengers(const std::string& filename, const std::map<int, std::unique_ptr<Passenger>>& passengers) {
-    std::ofstream outFile(filename);
+bool FileManager::savePassengers(const string& filename, const map<int, unique_ptr<Passenger>>& passengers) {
+    ofstream outFile(filename);
     if (!outFile.is_open()) return false;
 
     for (const auto& [id, pPassenger] : passengers) {
@@ -141,33 +142,33 @@ bool FileManager::savePassengers(const std::string& filename, const std::map<int
     return true;
 }
 
-bool FileManager::loadPassengers(const std::string& filename, std::map<int, std::unique_ptr<Passenger>>& passengers, int& maxId) {
-    std::ifstream inFile(filename);
+bool FileManager::loadPassengers(const string& filename, map<int, unique_ptr<Passenger>>& passengers, int& maxId) {
+    ifstream inFile(filename);
     if (!inFile.is_open()) return false;
 
     passengers.clear();
-    std::string line;
-    while (std::getline(inFile, line)) {
+    string line;
+    while (getline(inFile, line)) {
         if (line.empty() || line[0] == '#') continue;
         auto tokens = split(line, '|');
         if (tokens.size() < 4) continue;
 
-        std::string type = tokens[0];
-        int id = std::stoi(tokens[1]);
-        std::string name = tokens[2];
-        std::string email = tokens[3];
+        string type = tokens[0];
+        int id = stoi(tokens[1]);
+        string name = tokens[2];
+        string email = tokens[3];
 
         if (type == "STUDENT" && tokens.size() >= 6) {
-            std::string college = tokens[4];
-            std::string cardId = tokens[5];
-            passengers[id] = std::make_unique<StudentPassenger>(id, name, email, college, cardId);
+            string college = tokens[4];
+            string cardId = tokens[5];
+            passengers[id] = make_unique<StudentPassenger>(id, name, email, college, cardId);
         } else if (type == "SENIOR" && tokens.size() >= 6) {
-            int age = std::stoi(tokens[4]);
-            std::string cardId = tokens[5];
-            passengers[id] = std::make_unique<SeniorPassenger>(id, name, email, age, cardId);
+            int age = stoi(tokens[4]);
+            string cardId = tokens[5];
+            passengers[id] = make_unique<SeniorPassenger>(id, name, email, age, cardId);
         } else {
             // Default to Regular
-            passengers[id] = std::make_unique<Passenger>(id, name, email);
+            passengers[id] = make_unique<Passenger>(id, name, email);
         }
 
         if (id > maxId) maxId = id;
@@ -177,8 +178,8 @@ bool FileManager::loadPassengers(const std::string& filename, std::map<int, std:
 
 // ---------------- TICKETS ----------------
 
-bool FileManager::saveTickets(const std::string& filename, const std::map<int, Ticket>& tickets) {
-    std::ofstream outFile(filename);
+bool FileManager::saveTickets(const string& filename, const map<int, Ticket>& tickets) {
+    ofstream outFile(filename);
     if (!outFile.is_open()) return false;
 
     for (const auto& [id, ticket] : tickets) {
@@ -187,29 +188,29 @@ bool FileManager::saveTickets(const std::string& filename, const std::map<int, T
     return true;
 }
 
-bool FileManager::loadTickets(const std::string& filename, std::map<int, Ticket>& tickets, int& maxId) {
-    std::ifstream inFile(filename);
+bool FileManager::loadTickets(const string& filename, map<int, Ticket>& tickets, int& maxId) {
+    ifstream inFile(filename);
     if (!inFile.is_open()) return false;
 
     tickets.clear();
-    std::string line;
-    while (std::getline(inFile, line)) {
+    string line;
+    while (getline(inFile, line)) {
         if (line.empty() || line[0] == '#') continue;
         auto tokens = split(line, '|');
         if (tokens.size() >= 12) {
-            int tId = std::stoi(tokens[0]);
-            int pId = std::stoi(tokens[1]);
-            int srcId = std::stoi(tokens[2]);
-            int destId = std::stoi(tokens[3]);
-            int trnId = std::stoi(tokens[4]);
-            double dist = std::stod(tokens[5]);
-            double baseFare = std::stod(tokens[6]);
-            double disc = std::stod(tokens[7]);
-            double finalFare = std::stod(tokens[8]);
-            std::string status = tokens[9];
-            std::string payStatus = tokens[10];
-            std::string payMethod = tokens[11];
-            std::string timeStr = (tokens.size() >= 13) ? tokens[12] : "";
+            int tId = stoi(tokens[0]);
+            int pId = stoi(tokens[1]);
+            int srcId = stoi(tokens[2]);
+            int destId = stoi(tokens[3]);
+            int trnId = stoi(tokens[4]);
+            double dist = stod(tokens[5]);
+            double baseFare = stod(tokens[6]);
+            double disc = stod(tokens[7]);
+            double finalFare = stod(tokens[8]);
+            string status = tokens[9];
+            string payStatus = tokens[10];
+            string payMethod = tokens[11];
+            string timeStr = (tokens.size() >= 13) ? tokens[12] : "";
 
             Ticket tkt(tId, pId, srcId, destId, trnId, dist, baseFare, disc, finalFare, payMethod, timeStr);
             tkt.setBookingStatus(status);

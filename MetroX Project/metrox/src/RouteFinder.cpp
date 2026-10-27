@@ -4,10 +4,11 @@
 #include <queue>
 #include <limits>
 #include <algorithm>
+using namespace std;
 
-bool RouteFinder::findRouteBFS(const std::map<int, Station>& stations,
+bool RouteFinder::findRouteBFS(const map<int, Station>& stations,
                                int startId, int targetId,
-                               std::vector<int>& outPath, double& outDistance) {
+                               vector<int>& outPath, double& outDistance) {
     outPath.clear();
     outDistance = 0.0;
 
@@ -21,9 +22,9 @@ bool RouteFinder::findRouteBFS(const std::map<int, Station>& stations,
         return true;
     }
 
-    std::queue<int> q;
-    std::map<int, bool> visited;
-    std::map<int, int> parent;
+    queue<int> q;
+    map<int, bool> visited;
+    map<int, int> parent;
 
     visited[startId] = true;
     q.push(startId);
@@ -61,7 +62,7 @@ bool RouteFinder::findRouteBFS(const std::map<int, Station>& stations,
         curr = parent[curr];
     }
     outPath.push_back(startId);
-    std::reverse(outPath.begin(), outPath.end());
+    reverse(outPath.begin(), outPath.end());
 
     // Compute cumulative distance along the path
     for (size_t i = 0; i + 1 < outPath.size(); ++i) {
@@ -77,9 +78,9 @@ bool RouteFinder::findRouteBFS(const std::map<int, Station>& stations,
     return true;
 }
 
-bool RouteFinder::findShortestRouteDijkstra(const std::map<int, Station>& stations,
+bool RouteFinder::findShortestRouteDijkstra(const map<int, Station>& stations,
                                            int startId, int targetId,
-                                           std::vector<int>& outPath, double& outDistance) {
+                                           vector<int>& outPath, double& outDistance) {
     outPath.clear();
     outDistance = 0.0;
 
@@ -94,12 +95,12 @@ bool RouteFinder::findShortestRouteDijkstra(const std::map<int, Station>& statio
     }
 
     // Min-priority queue storing pairs of (distance, stationId)
-    using DistPair = std::pair<double, int>;
-    std::priority_queue<DistPair, std::vector<DistPair>, std::greater<DistPair>> pq;
+    using DistPair = pair<double, int>;
+    priority_queue<DistPair, vector<DistPair>, greater<DistPair>> pq;
 
-    std::map<int, double> dist;
-    std::map<int, int> parent;
-    const double INF = std::numeric_limits<double>::infinity();
+    map<int, double> dist;
+    map<int, int> parent;
+    const double INF = numeric_limits<double>::infinity();
 
     for (const auto& pair : stations) {
         dist[pair.first] = INF;
@@ -141,36 +142,36 @@ bool RouteFinder::findShortestRouteDijkstra(const std::map<int, Station>& statio
         curr = parent[curr];
     }
     outPath.push_back(startId);
-    std::reverse(outPath.begin(), outPath.end());
+    reverse(outPath.begin(), outPath.end());
 
     outDistance = dist[targetId];
     return true;
 }
 
-void RouteFinder::printRouteSummary(const std::vector<int>& path, double distance,
-                                    const std::map<int, Station>& stations,
-                                    const std::string& algorithmName) {
+void RouteFinder::printRouteSummary(const vector<int>& path, double distance,
+                                    const map<int, Station>& stations,
+                                    const string& algorithmName) {
     if (path.empty()) {
-        std::cout << "[INFO] No route available.\n";
+        cout << "[INFO] No route available.\n";
         return;
     }
 
-    std::cout << "\n=======================================================\n";
-    std::cout << "  ROUTE FOUND VIA: " << algorithmName << "\n";
-    std::cout << "=======================================================\n";
-    std::cout << "Total Stations in Journey : " << path.size() << " stops (" << (path.size() - 1) << " hops)\n";
-    std::cout << "Total Journey Distance     : " << std::fixed << std::setprecision(2) << distance << " km\n";
-    std::cout << "-------------------------------------------------------\n";
-    std::cout << "Itinerary:\n";
+    cout << "\n=======================================================\n";
+    cout << "  ROUTE FOUND VIA: " << algorithmName << "\n";
+    cout << "=======================================================\n";
+    cout << "Total Stations in Journey : " << path.size() << " stops (" << (path.size() - 1) << " hops)\n";
+    cout << "Total Journey Distance     : " << fixed << setprecision(2) << distance << " km\n";
+    cout << "-------------------------------------------------------\n";
+    cout << "Itinerary:\n";
 
     for (size_t i = 0; i < path.size(); ++i) {
         int sId = path[i];
         auto it = stations.find(sId);
-        std::string sName = (it != stations.end()) ? it->second.getName() : "Unknown";
-        std::string sLoc = (it != stations.end()) ? it->second.getLocation() : "";
+        string sName = (it != stations.end()) ? it->second.getName() : "Unknown";
+        string sLoc = (it != stations.end()) ? it->second.getLocation() : "";
 
-        std::cout << "  " << std::setw(2) << (i + 1) << ". [" << sId << "] " << sName;
-        if (!sLoc.empty()) std::cout << " (" << sLoc << ")";
+        cout << "  " << setw(2) << (i + 1) << ". [" << sId << "] " << sName;
+        if (!sLoc.empty()) cout << " (" << sLoc << ")";
 
         if (i + 1 < path.size()) {
             int nextId = path[i + 1];
@@ -178,10 +179,10 @@ void RouteFinder::printRouteSummary(const std::vector<int>& path, double distanc
             if (it != stations.end()) {
                 segDist = it->second.getConnectionDistance(nextId);
             }
-            std::cout << "\n       │ (" << std::fixed << std::setprecision(1) << segDist << " km)\n       ▼\n";
+            cout << "\n       │ (" << fixed << setprecision(1) << segDist << " km)\n       ▼\n";
         } else {
-            std::cout << "  [DESTINATION ARRIVAL]\n";
+            cout << "  [DESTINATION ARRIVAL]\n";
         }
     }
-    std::cout << "=======================================================\n\n";
+    cout << "=======================================================\n\n";
 }

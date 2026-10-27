@@ -1,29 +1,30 @@
 #include "../include/Station.h"
 #include <iostream>
 #include <iomanip>
+using namespace std;
 
 Station::Station() : id(0), name(""), location("") {}
 
-Station::Station(int id, const std::string& name, const std::string& location)
+Station::Station(int id, const string& name, const string& location)
     : id(id), name(name), location(location) {}
 
 int Station::getId() const {
     return id;
 }
 
-std::string Station::getName() const {
+string Station::getName() const {
     return name;
 }
 
-std::string Station::getLocation() const {
+string Station::getLocation() const {
     return location;
 }
 
-void Station::setName(const std::string& newName) {
+void Station::setName(const string& newName) {
     name = newName;
 }
 
-void Station::setLocation(const std::string& newLocation) {
+void Station::setLocation(const string& newLocation) {
     location = newLocation;
 }
 
@@ -47,7 +48,7 @@ bool Station::removeConnection(int neighborId) {
     return false;
 }
 
-const std::vector<std::pair<int, double>>& Station::getConnections() const {
+const vector<pair<int, double>>& Station::getConnections() const {
     return connections;
 }
 
@@ -70,17 +71,17 @@ double Station::getConnectionDistance(int neighborId) const {
 }
 
 void Station::display() const {
-    std::cout << "Station ID: " << std::setw(3) << id 
-              << " | Name: " << std::setw(20) << std::left << name 
-              << " | Location: " << std::setw(15) << std::left << location
-              << " | Connections: " << connections.size() << std::right << "\n";
+    cout << "Station ID: " << setw(3) << id 
+              << " | Name: " << setw(20) << left << name 
+              << " | Location: " << setw(15) << left << location
+              << " | Connections: " << connections.size() << right << "\n";
     if (!connections.empty()) {
-        std::cout << "   └── Direct Links: ";
+        cout << "   └── Direct Links: ";
         for (size_t i = 0; i < connections.size(); ++i) {
-            std::cout << "To Station [" << connections[i].first << "] (" 
-                      << std::fixed << std::setprecision(1) << connections[i].second << " km)";
-            if (i + 1 < connections.size()) std::cout << ", ";
+            cout << "To Station [" << connections[i].first << "] (" 
+                      << fixed << setprecision(1) << connections[i].second << " km)";
+            if (i + 1 < connections.size()) cout << ", ";
         }
-        std::cout << "\n";
+        cout << "\n";
     }
 }
