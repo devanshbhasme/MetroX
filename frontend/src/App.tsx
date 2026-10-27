@@ -22,6 +22,7 @@ import { AnalyticsPage } from './pages/AnalyticsPage';
 import { Station, Train, Passenger, Ticket, SystemStats } from './types/metro';
 import { api } from './services/api';
 import { AlertCircle, RefreshCw, Train as TrainIcon, Terminal } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export const App: React.FC = () => {
   // Passenger section is default when program/website starts
@@ -107,7 +108,12 @@ export const App: React.FC = () => {
             <p className="text-sm font-semibold text-[#64748B]">Connecting to MetroX Transit Core Engine...</p>
           </div>
         ) : (
-          <>
+          <motion.div
+            key={currentTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+          >
             {/* ================= PASSENGER SECTION ================= */}
             {currentTab === 'passenger-dashboard' && (
               <PassengerDashboardPage
@@ -264,7 +270,7 @@ export const App: React.FC = () => {
             {currentTab === 'admin-analytics' && (
               <AnalyticsPage />
             )}
-          </>
+          </motion.div>
         )}
 
       </main>
