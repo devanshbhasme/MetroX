@@ -1,0 +1,4 @@
+REGULAR|1|Alex Morgan|alex.morgan@email.com
+STUDENT|2|David Chen|david.chen@univ.edu|National Institute of Tech|STU-8821
+SENIOR|3|Robert Wilson|r.wilson@seniorcare.org|68|SR-55201
+STUDENT|4|Sam Alt|sam@mit.edu|MIT|MIT-2024

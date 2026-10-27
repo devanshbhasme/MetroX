@@ -1,0 +1,20 @@
+{
+  "id": 1,
+  "name": "Alex Morgan",
+  "email": "alex.morgan@email.com",
+  "phone": "+91 98765 43210",
+  "type": "Regular",
+  "smartCardNumber": "METRO-NGP-77492",
+  "cardBalance": 540.5,
+  "homeStationId": 1,
+  "homeStationName": "Automotive Square",
+  "workStationId": 8,
+  "workStationName": "Sitabuldi",
+  "preferredLine": "Orange Line",
+  "notificationSettings": {
+    "delays": true,
+    "fareDiscounts": true,
+    "platformChanges": true,
+    "smsReceipts": false
+  }
+}

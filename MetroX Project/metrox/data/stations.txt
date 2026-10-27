@@ -1,0 +1,37 @@
+1|Automotive Square|Orange Line|2:1
+2|Nari Road|Orange Line|1:1,3:1
+3|Indora Square|Orange Line|2:1,4:1
+4|Kadbi Square|Orange Line|3:1,5:1
+5|Gaddi Godam Square|Orange Line|4:1,6:1
+6|Kasturchand Park|Orange Line|5:1,7:1
+7|Zero Mile Freedom Park|Orange Line|6:1,8:1
+8|Sitabuldi|Interchange|7:1,9:1,27:1,28:1
+9|Congress Nagar|Orange Line|8:1,10:1
+10|Rahate Colony|Orange Line|9:1,11:1
+11|Ajni Square|Orange Line|10:1,12:1
+12|Chhatrapati Square|Orange Line|11:1,13:1
+13|Jaiprakash Nagar|Orange Line|12:1,14:1
+14|Ujjwal Nagar|Orange Line|13:1,15:1
+15|Airport|Orange Line|14:1,16:1
+16|Airport South|Orange Line|15:1,17:1
+17|New Airport|Orange Line|16:1,18:1
+18|Khapri|Orange Line|17:1
+19|Prajapati Nagar|Aqua Line|20:1
+20|Vaishnao Devi Square|Aqua Line|19:1,21:1
+21|Ambedkar Square|Aqua Line|20:1,22:1
+22|Telephone Exchange|Aqua Line|21:1,23:1
+23|Chitar Oli Square|Aqua Line|22:1,24:1
+24|Agrasen Square|Aqua Line|23:1,25:1
+25|Dosar Vaisya Square|Aqua Line|24:1,26:1
+26|Nagpur Railway Station|Aqua Line|25:1,27:1
+27|Cotton Market|Aqua Line|26:1,8:1
+28|Jhansi Rani Square|Aqua Line|8:1,29:1
+29|Institute of Engineers|Aqua Line|28:1,30:1
+30|Shankar Nagar Square|Aqua Line|29:1,31:1
+31|LAD Square|Aqua Line|30:1,32:1
+32|Dharampeth College|Aqua Line|31:1,33:1
+33|Subhash Nagar|Aqua Line|32:1,34:1
+34|Rachana Ring Road Junction|Aqua Line|33:1,35:1
+35|Vasudev Nagar|Aqua Line|34:1,36:1
+36|Bansi Nagar|Aqua Line|35:1,37:1
+37|Lokmanya Nagar|Aqua Line|36:1

@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "line": "Orange Line",
+    "origin": "Automotive Square",
+    "destination": "Khapri",
+    "firstTrain": "06:00",
+    "lastTrain": "22:30",
+    "frequencyPeak": "6 mins",
+    "frequencyOffPeak": "12 mins",
+    "activeTrains": [
+      "101",
+      "103"
+    ],
+    "operatingDays": "Monday - Sunday",
+    "stopsCount": 18,
+    "averageTravelTime": "38 mins"
+  },
+  {
+    "id": 2,
+    "line": "Aqua Line",
+    "origin": "Prajapati Nagar",
+    "destination": "Lokmanya Nagar",
+    "firstTrain": "06:15",
+    "lastTrain": "22:15",
+    "frequencyPeak": "7 mins",
+    "frequencyOffPeak": "14 mins",
+    "activeTrains": [
+      "102",
+      "104"
+    ],
+    "operatingDays": "Monday - Sunday",
+    "stopsCount": 19,
+    "averageTravelTime": "42 mins"
+  },
+  {
+    "id": 3,
+    "line": "Orange Express Shuttle",
+    "origin": "Sitabuldi Interchange",
+    "destination": "Airport / MIHAN",
+    "firstTrain": "07:00",
+    "lastTrain": "21:30",
+    "frequencyPeak": "10 mins",
+    "frequencyOffPeak": "20 mins",
+    "activeTrains": [
+      "101"
+    ],
+    "operatingDays": "Daily",
+    "stopsCount": 9,
+    "averageTravelTime": "18 mins"
+  }
+]

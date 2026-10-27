@@ -1,0 +1,39 @@
+{
+  "baseFare": 10,
+  "ratePerKm": 3.5,
+  "minFare": 5,
+  "discounts": {
+    "student": 0.2,
+    "senior": 0.3,
+    "weekendPromo": 0.1,
+    "smartCardBonus": 0.05
+  },
+  "fareSlabs": [
+    {
+      "maxKm": 3,
+      "fare": 10
+    },
+    {
+      "maxKm": 6,
+      "fare": 15
+    },
+    {
+      "maxKm": 12,
+      "fare": 25
+    },
+    {
+      "maxKm": 18,
+      "fare": 35
+    },
+    {
+      "maxKm": 25,
+      "fare": 45
+    },
+    {
+      "maxKm": 50,
+      "fare": 55
+    }
+  ],
+  "currency": "INR (₹)",
+  "lastUpdated": "2026-10-27T11:41:23.273Z"
+}

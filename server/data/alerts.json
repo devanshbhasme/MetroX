@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "line": "Aqua Line",
+    "type": "DELAY",
+    "severity": "WARNING",
+    "title": "3-5 Min Signaling Delay at Sitabuldi",
+    "description": "Minor software sync at Sitabuldi Junction platform 2. Service running smoothly with slight pacing.",
+    "timestamp": "2026-10-27T11:41:23.273Z",
+    "status": "ACTIVE"
+  },
+  {
+    "id": 2,
+    "line": "Orange Line",
+    "type": "MAINTENANCE",
+    "severity": "INFO",
+    "title": "Escalator Overhaul at Automotive Square",
+    "description": "North exit escalator under scheduled preventative servicing. Elevator accessible for passengers.",
+    "timestamp": "2026-10-27T11:41:23.273Z",
+    "status": "ACTIVE"
+  },
+  {
+    "id": 3,
+    "line": "All Lines",
+    "type": "GENERAL",
+    "severity": "SUCCESS",
+    "title": "100% On-Time Metro Service Today",
+    "description": "Nagpur Metro operates at 99.4% punctuality across all 37 interconnected stations.",
+    "timestamp": "2026-10-27T11:41:23.273Z",
+    "status": "ACTIVE"
+  }
+]
