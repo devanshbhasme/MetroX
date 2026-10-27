@@ -44,8 +44,11 @@ int main() {
 
     MetroSystem system;
     
-    // Automatically initialize with default network topology for immediate testing
-    system.seedSampleData();
+    // Automatically restore persisted data from data/ folder, or fallback to sample topology
+    bool loaded = system.loadData();
+    if (!loaded || system.getStations().empty()) {
+        system.seedSampleData();
+    }
 
     bool running = true;
     while (running) {
