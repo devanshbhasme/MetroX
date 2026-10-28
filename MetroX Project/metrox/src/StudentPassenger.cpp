@@ -4,6 +4,7 @@
 #include <sstream>
 using namespace std;
 
+// constructors overloading
 StudentPassenger::StudentPassenger()
     : Passenger(), collegeName(""), studentCardId("") {}
 
@@ -11,6 +12,8 @@ StudentPassenger::StudentPassenger(int id, const string& name, const string& ema
                                    const string& collegeName, const string& studentCardId)
     : Passenger(id, name, email), collegeName(collegeName), studentCardId(studentCardId) {}
 
+
+// getter and setters
 string StudentPassenger::getCollegeName() const {
     return collegeName;
 }

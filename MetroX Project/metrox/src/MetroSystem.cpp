@@ -735,7 +735,7 @@ string MetroSystem::readLine(const string& prompt) {
     return line.substr(first, (last - first + 1));
 }
 
-// ---------------- PROGRAMMATIC SERVICE API IMPLEMENTATION ----------------
+// getter and setters
 
 const map<int, Station>& MetroSystem::getStations() const {
     return stations;

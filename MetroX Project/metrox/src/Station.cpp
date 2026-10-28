@@ -3,11 +3,13 @@
 #include <iomanip>
 using namespace std;
 
+// constructors overloading
 Station::Station() : id(0), name(""), location("") {}
 
 Station::Station(int id, const string& name, const string& location)
     : id(id), name(name), location(location) {}
 
+// getter and setters
 int Station::getId() const {
     return id;
 }
