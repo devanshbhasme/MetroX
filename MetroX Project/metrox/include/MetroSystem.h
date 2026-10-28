@@ -14,17 +14,14 @@
 #include "Route.h"
 #include "Payment.h"
 
-/**
- * @class MetroSystem
- * @brief Central controller managing stations, trains, passengers, tickets, and fare logic.
- * Demonstrates: Controller Pattern, Polymorphism with std::unique_ptr, Invariant Validation, Safe Input Handling.
- */
+using namespace std;
+
 class MetroSystem {
 private:
-    std::map<int, Station> stations;
-    std::map<int, Train> trains;
-    std::map<int, std::unique_ptr<Passenger>> passengers;
-    std::map<int, Ticket> tickets;
+    map<int, Station> stations;
+    map<int, Train> trains;
+    map<int, unique_ptr<Passenger>> passengers;
+    map<int, Ticket> tickets;
 
     // Auto-increment unique ID generators
     int nextStationId;
@@ -37,25 +34,25 @@ private:
     double ratePerKm;     // Configurable per-km fare rate (e.g. ₹3.50/km)
 
     // Data directory path
-    std::string dataDirectory;
+    string dataDirectory;
 
 public:
     struct BookingResult {
         bool success;
-        std::string message;
+        string message;
         int ticketId;
         double fare;
         double change;
-        std::string passengerName;
-        std::string passengerType;
-        std::string sourceName;
-        std::string destName;
-        std::string trainName;
+        string passengerName;
+        string passengerType;
+        string sourceName;
+        string destName;
+        string trainName;
     };
 
     struct CancelResult {
         bool success;
-        std::string message;
+        string message;
         double refundAmount;
         int releasedTrainId;
     };
@@ -67,26 +64,26 @@ public:
     void seedSampleData();
 
     // Direct Programmatic API for Web Service Layer
-    const std::map<int, Station>& getStations() const;
-    const std::map<int, Train>& getTrains() const;
-    const std::map<int, std::unique_ptr<Passenger>>& getPassengers() const;
-    const std::map<int, Ticket>& getTickets() const;
+    const map<int, Station>& getStations() const;
+    const map<int, Train>& getTrains() const;
+    const map<int, unique_ptr<Passenger>>& getPassengers() const;
+    const map<int, Ticket>& getTickets() const;
 
-    int addStation(const std::string& name, const std::string& location);
+    int addStation(const string& name, const string& location);
     bool connectStations(int id1, int id2, double distance);
-    int addTrain(const std::string& name, int capacity, const std::string& status = "IN_SERVICE");
-    int registerNormalPassenger(const std::string& name, const std::string& email);
-    int registerStudentPassenger(const std::string& name, const std::string& email, const std::string& college, const std::string& cardId);
-    int registerSeniorPassenger(const std::string& name, const std::string& email, int age, const std::string& cardId);
+    int addTrain(const string& name, int capacity, const string& status = "IN_SERVICE");
+    int registerNormalPassenger(const string& name, const string& email);
+    int registerStudentPassenger(const string& name, const string& email, const string& college, const string& cardId);
+    int registerSeniorPassenger(const string& name, const string& email, int age, const string& cardId);
 
-    bool findRouteBFS(int srcId, int destId, std::vector<int>& outPath, double& outDistance) const;
-    bool findShortestRouteDijkstra(int srcId, int destId, std::vector<int>& outPath, double& outDistance) const;
+    bool findRouteBFS(int srcId, int destId, vector<int>& outPath, double& outDistance) const;
+    bool findShortestRouteDijkstra(int srcId, int destId, vector<int>& outPath, double& outDistance) const;
 
     BookingResult bookTicketProgrammatic(int passengerId, int srcId, int destId, int trainId,
-                                        const std::string& paymentMethod,
-                                        const std::string& upiId,
-                                        const std::string& cardNumber, const std::string& cardHolder,
-                                        const std::string& cardExp, const std::string& cardCvv,
+                                        const string& paymentMethod,
+                                        const string& upiId,
+                                        const string& cardNumber, const string& cardHolder,
+                                        const string& cardExp, const string& cardCvv,
                                         double cashTendered);
 
     CancelResult cancelTicketProgrammatic(int ticketId);
@@ -121,9 +118,9 @@ public:
     double calculateFare(double distance, double discountFraction) const;
 
     // Safe input utility functions
-    static int readInt(const std::string& prompt, int minVal = -2147483647, int maxVal = 2147483647);
-    static double readDouble(const std::string& prompt, double minVal = 0.0, double maxVal = 1e9);
-    static std::string readString(const std::string& prompt);
-    static std::string readLine(const std::string& prompt);
+    static int readInt(const string& prompt, int minVal = -2147483647, int maxVal = 2147483647);
+    static double readDouble(const string& prompt, double minVal = 0.0, double maxVal = 1e9);
+    static string readString(const string& prompt);
+    static string readLine(const string& prompt);
     static void clearInputBuffer();
 };

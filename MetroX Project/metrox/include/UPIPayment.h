@@ -2,23 +2,19 @@
 
 #include "Payment.h"
 #include <string>
+using namespace std;
 
-/**
- * @class UPIPayment
- * @brief Simulates Unified Payments Interface (UPI) transactions.
- * Demonstrates: Polymorphic implementation of Payment interface.
- */
 class UPIPayment : public Payment {
 private:
-    std::string upiId;
+    string upiId;
 
 public:
     UPIPayment();
-    explicit UPIPayment(const std::string& upiId);
+    explicit UPIPayment(const string& upiId);
 
     bool pay(double amount) override;
-    std::string getMethodName() const override;
+    string getMethodName() const override;
 
-    std::string getUpiId() const;
-    void setUpiId(const std::string& id);
+    string getUpiId() const;
+    void setUpiId(const string& id);
 };

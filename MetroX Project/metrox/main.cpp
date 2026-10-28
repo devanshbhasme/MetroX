@@ -1,42 +1,43 @@
 #include <iostream>
 #include <cstdlib>
 #include "./include/MetroSystem.h"
+using namespace std;
 
 void displayBanner() {
-    std::cout << "\n";
-    std::cout << "███╗   ███╗███████╗████████╗██████╗  ██████╗ ██╗  ██╗\n";
-    std::cout << "████╗ ████║██╔════╝╚══██╔══╝██╔══██╗██╔═══██╗╚██╗██╔╝\n";
-    std::cout << "██╔████╔██║█████╗     ██║   ██████╔╝██║   ██║ ╚███╔╝ \n";
-    std::cout << "██║╚██╔╝██║██╔══╝     ██║   ██╔══██╗██║   ██║ ██╔██╗ \n";
-    std::cout << "██║ ╚═╝ ██║███████╗   ██║   ██║  ██║╚██████╔╝██╔╝ ██╗\n";
-    std::cout << "╚═╝     ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝\n";
-    std::cout << "        Smart Metro Transit Management System        \n";
-    std::cout << "              College OOP Project (C++17)            \n";
-    std::cout << "=====================================================\n";
+    cout << "\n";
+    cout << "███╗   ███╗███████╗████████╗██████╗  ██████╗ ██╗  ██╗\n";
+    cout << "████╗ ████║██╔════╝╚══██╔══╝██╔══██╗██╔═══██╗╚██╗██╔╝\n";
+    cout << "██╔████╔██║█████╗     ██║   ██████╔╝██║   ██║ ╚███╔╝ \n";
+    cout << "██║╚██╔╝██║██╔══╝     ██║   ██╔══██╗██║   ██║ ██╔██╗ \n";
+    cout << "██║ ╚═╝ ██║███████╗   ██║   ██║  ██║╚██████╔╝██╔╝ ██╗\n";
+    cout << "╚═╝     ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝\n";
+    cout << "        Smart Metro Transit Management System        \n";
+    cout << "              College OOP Project (C++17)            \n";
+    cout << "=====================================================\n";
 }
 
 void printMenu() {
-    std::cout << "\n================= METROX MAIN MENU ==================\n";
-    std::cout << " [1]  Add a station\n";
-    std::cout << " [2]  Display all stations\n";
-    std::cout << " [3]  Connect two stations with a distance\n";
-    std::cout << " [4]  Add a train\n";
-    std::cout << " [5]  Display trains and their status\n";
-    std::cout << " [6]  Register a normal passenger\n";
-    std::cout << " [7]  Register a student passenger (20% off)\n";
-    std::cout << " [8]  Register a senior passenger (30% off)\n";
-    std::cout << " [9]  Display all passengers\n";
-    std::cout << " [10] Find a route between two stations (BFS / Min Stops)\n";
-    std::cout << " [11] Find shortest-distance route (Dijkstra's Algorithm)\n";
-    std::cout << " [12] Book a ticket\n";
-    std::cout << " [13] Cancel a ticket\n";
-    std::cout << " [14] Display all tickets\n";
-    std::cout << " [15] Simulate payment using UPI, card, or cash\n";
-    std::cout << " [16] Display train capacity\n";
-    std::cout << " [17] Save system data to files\n";
-    std::cout << " [18] Load saved system data\n";
-    std::cout << " [19] Exit\n";
-    std::cout << "=====================================================\n";
+    cout << "\n================= METROX MAIN MENU ==================\n";
+    cout << " [1]  Add a station\n";
+    cout << " [2]  Display all stations\n";
+    cout << " [3]  Connect two stations with a distance\n";
+    cout << " [4]  Add a train\n";
+    cout << " [5]  Display trains and their status\n";
+    cout << " [6]  Register a normal passenger\n";
+    cout << " [7]  Register a student passenger (20% off)\n";
+    cout << " [8]  Register a senior passenger (30% off)\n";
+    cout << " [9]  Display all passengers\n";
+    cout << " [10] Find a route between two stations (BFS / Min Stops)\n";
+    cout << " [11] Find shortest-distance route (Dijkstra's Algorithm)\n";
+    cout << " [12] Book a ticket\n";
+    cout << " [13] Cancel a ticket\n";
+    cout << " [14] Display all tickets\n";
+    cout << " [15] Simulate payment using UPI, card, or cash\n";
+    cout << " [16] Display train capacity\n";
+    cout << " [17] Save system data to files\n";
+    cout << " [18] Load saved system data\n";
+    cout << " [19] Exit\n";
+    cout << "=====================================================\n";
 }
 
 int main() {
@@ -75,11 +76,11 @@ int main() {
             case 17: system.saveDataMenu(); break;
             case 18: system.loadDataMenu(); break;
             case 19:
-                std::cout << "\n[METROX] Thank you for using MetroX Smart Transit System. Goodbye!\n";
+                cout << "\n[METROX] Thank you for using MetroX Smart Transit System. Goodbye!\n";
                 running = false;
                 break;
             default:
-                std::cout << "[ERROR] Invalid selection.\n";
+                cout << "[ERROR] Invalid selection.\n";
                 break;
         }
     }

@@ -1,34 +1,31 @@
 #pragma once
 
 #include <string>
+using namespace std;
 
-/**
- * @class Train
- * @brief Represents a metro train and tracks onboard passengers, capacity limits, and operational status.
- * Demonstrates: Encapsulation and Data Invariant Enforcement.
- */
+
 class Train {
 private:
     int id;
-    std::string name;
+    string name;
     int capacity;
     int currentPassengers;
-    std::string status; // "IN_SERVICE", "MAINTENANCE", "STANDBY"
+    string status; // "IN_SERVICE", "MAINTENANCE", "STANDBY"
 
 public:
     Train();
-    Train(int id, const std::string& name, int capacity, const std::string& status = "IN_SERVICE");
+    Train(int id, const string& name, int capacity, const string& status = "IN_SERVICE");
 
     // Getters and Setters
     int getId() const;
-    std::string getName() const;
+    string getName() const;
     int getCapacity() const;
     int getCurrentPassengers() const;
-    std::string getStatus() const;
+    string getStatus() const;
 
-    void setName(const std::string& name);
+    void setName(const string& name);
     void setCapacity(int capacity);
-    void setStatus(const std::string& status);
+    void setStatus(const string& status);
 
     // Operational methods
     bool canBoard(int count = 1) const;

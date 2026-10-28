@@ -1,12 +1,8 @@
 #pragma once
 
 #include <string>
+using namespace std;
 
-/**
- * @class Ticket
- * @brief Represents an issued metro transit ticket, recording passenger, trip, financial, and operational details.
- * Demonstrates: Encapsulation, State Management, and Business Invariants.
- */
 class Ticket {
 private:
     int ticketId;
@@ -18,16 +14,16 @@ private:
     double baseFare;
     double discountPercent; // e.g., 0.20 for 20%
     double finalFare;
-    std::string bookingStatus; // "CONFIRMED", "CANCELLED"
-    std::string paymentStatus; // "PAID", "REFUNDED", "FAILED"
-    std::string paymentMethod; // "UPI", "Card", "Cash"
-    std::string bookingTime;
+    string bookingStatus; // "CONFIRMED", "CANCELLED"
+    string paymentStatus; // "PAID", "REFUNDED", "FAILED"
+    string paymentMethod; // "UPI", "Card", "Cash"
+    string bookingTime;
 
 public:
     Ticket();
     Ticket(int ticketId, int passengerId, int sourceId, int destId, int trainId,
            double distance, double baseFare, double discountPercent, double finalFare,
-           const std::string& paymentMethod, const std::string& bookingTime = "");
+           const string& paymentMethod, const string& bookingTime = "");
 
     // Getters
     int getTicketId() const;
@@ -39,23 +35,23 @@ public:
     double getBaseFare() const;
     double getDiscountPercent() const;
     double getFinalFare() const;
-    std::string getBookingStatus() const;
-    std::string getPaymentStatus() const;
-    std::string getPaymentMethod() const;
-    std::string getBookingTime() const;
+    string getBookingStatus() const;
+    string getPaymentStatus() const;
+    string getPaymentMethod() const;
+    string getBookingTime() const;
     bool isBooked() const;
 
     // Setters / Modifiers
-    void setBookingStatus(const std::string& status);
-    void setPaymentStatus(const std::string& status);
+    void setBookingStatus(const string& status);
+    void setPaymentStatus(const string& status);
     bool cancelTicket();
 
     // Presentation
     void display() const;
-    void displayDetailed(const std::string& passengerName,
-                         const std::string& passengerType,
-                         const std::string& sourceName,
-                         const std::string& destName,
-                         const std::string& trainName) const;
-    std::string serialize() const;
+    void displayDetailed(const string& passengerName,
+                         const string& passengerType,
+                         const string& sourceName,
+                         const string& destName,
+                         const string& trainName) const;
+    string serialize() const;
 };

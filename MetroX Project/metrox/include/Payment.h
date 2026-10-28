@@ -1,12 +1,8 @@
 #pragma once
 
 #include <string>
+using namespace std;
 
-/**
- * @class Payment
- * @brief Abstract Base Class defining the contract for transit fare payments.
- * Demonstrates: Abstraction, Pure Virtual Functions (interface), Virtual Destructor.
- */
 class Payment {
 public:
     virtual ~Payment() = default;
@@ -21,5 +17,5 @@ public:
     /**
      * @brief Returns the human-readable payment method name.
      */
-    virtual std::string getMethodName() const = 0;
+    virtual string getMethodName() const = 0;
 };
